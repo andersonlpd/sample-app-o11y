@@ -241,46 +241,6 @@ kubectl port-forward -n observability svc/grafana 3000:3000
    rate(http_requests_total{app="web-app",status=~"5.."}[5m])
    ```
 
-## 🏗️ Arquitetura
-
-```
-┌─────────────────────────────────────────────┐
-│           Web App (Node.js)                 │
-│                                             │
-│  ┌────────┐  ┌────────┐  ┌──────────────┐ │
-│  │ Logger │  │ Tracer │  │ Metrics      │ │
-│  │(Winston│  │ (OTEL) │  │(prom-client) │ │
-│  └───┬────┘  └────┬───┘  └──────┬───────┘ │
-│      │            │              │         │
-└──────┼────────────┼──────────────┼─────────┘
-       │            │              │
-       │stdout      │OTLP HTTP     │/metrics
-       │            │              │
-       ▼            ▼              ▼
-┌─────────────────────────────────────────────┐
-│    Observability Stack (namespace: obs)     │
-│                                             │
-│  ┌─────────┐  ┌──────────────┐  ┌────────┐│
-│  │Promtail │  │ OTEL         │  │ Scraper││
-│  │         │  │ Collector    │  │        ││
-│  └────┬────┘  └──────┬───────┘  └───┬────┘│
-│       │              │               │     │
-│       ▼              ▼               ▼     │
-│  ┌────────┐    ┌─────────┐    ┌─────────┐│
-│  │  Loki  │    │  Tempo  │    │  Mimir  ││
-│  │(Logs)  │    │(Traces) │    │(Metrics)││
-│  └────────┘    └─────────┘    └─────────┘│
-│       │              │               │     │
-│       └──────────────┴───────────────┘     │
-│                      │                     │
-│                      ▼                     │
-│               ┌──────────┐                 │
-│               │ Grafana  │                 │
-│               │          │                 │
-│               └──────────┘                 │
-└─────────────────────────────────────────────┘
-```
-
 ## 🔧 Desenvolvimento Local
 
 ### Sem Docker
@@ -328,52 +288,8 @@ sample-app-o11y/
 }
 ```
 
-## 🚦 Próximos Passos
-
-- [ ] Adicionar dashboards Grafana pré-configurados
-- [ ] Exemplos de alertas
-- [ ] Testes de integração
-- [ ] CI/CD pipeline
-- [ ] Exemplos em outras linguagens (Python, Go, Java)
-
-## 🐛 Troubleshooting
-
-### Pod não inicia
-
-```bash
-kubectl describe pod -l app=web-app
-kubectl logs -l app=web-app
-```
-
-### Traces não aparecem no Tempo
-
-Verifique:
-1. OTEL Collector está rodando: `kubectl get pods -n observability -l app=otel-collector`
-2. Endpoint está correto: `http://otel-collector.observability.svc.cluster.local:4318`
-3. Logs do OTEL Collector: `kubectl logs -n observability -l app=otel-collector`
-
-### Logs não aparecem no Loki
-
-Verifique:
-1. Promtail está rodando: `kubectl get pods -n observability -l app=promtail`
-2. Logs do Promtail: `kubectl logs -n observability -l app=promtail`
-3. Logs da app estão em JSON: `kubectl logs -l app=web-app`
-
-## 📚 Referências
-
-- [OpenTelemetry Node.js](https://opentelemetry.io/docs/instrumentation/js/)
-- [Winston Logger](https://github.com/winstonjs/winston)
-- [Prometheus Node.js Client](https://github.com/siimon/prom-client)
-- [Express.js](https://expressjs.com/)
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Abra issues ou pull requests.
-
 ## 📄 Licença
 
 MIT
 
 ---
-
-**Exemplo completo de aplicação instrumentada para observabilidade** 🔍
