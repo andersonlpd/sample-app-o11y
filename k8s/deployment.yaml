@@ -13,11 +13,15 @@ spec:
     metadata:
       labels:
         app: web-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: web-app
-        image: local-o11y/web-app:latest
-        imagePullPolicy: Never
+        image: andersonlpd/sample-web-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
           name: http
@@ -61,6 +65,10 @@ metadata:
   name: web-app
   labels:
     app: web-app
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/metrics"
 spec:
   selector:
     app: web-app
